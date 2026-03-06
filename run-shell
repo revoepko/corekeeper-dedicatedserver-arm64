@@ -1,0 +1,21 @@
+docker build -f base/Dockerfile -t epko-base:latest base
+docker build -f steamcmd/Dockerfile -t epko-steamcmd:latest steamcmd
+docker build -f corekeeper/Dockerfile -t epko-corekeeper:latest corekeeper
+
+docker run -d -it \
+  --name epko-steamcmd \
+  -v /Users/epko/steamcmd-data:/data \
+  epko-steamcmd:latest
+
+steamcmd
+steamcmd +force_install_dir /data/corekeeper +login anonymous +app_update 1963720 validate +quit
+steamcmd +force_install_dir /data/sdk +login anonymous +app_update 1007 validate +quit
+
+docker run -d -it \
+  --name epko-corekeeper \
+  -v /Users/epko/steamcmd-data/corekeeper:/home/steam \
+  -v /Users/epko/steamcmd-data/sdk:/home/steam/sdk \
+  -p 27015:27015/udp \
+  -p 27016:27016/udp \
+  epko-corekeeper:latest \
+  ./_launch.sh
