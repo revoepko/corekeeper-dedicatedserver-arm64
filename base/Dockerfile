@@ -6,9 +6,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Stage 2: Box64 빌드
 FROM debian:bookworm-slim AS builder
+ARG BOX64_COMMIT=24065fffb
 RUN apt-get update && apt-get install -y git build-essential cmake python3
 WORKDIR /src
-RUN git clone https://github.com/ptitSeb/box64.git
+RUN git clone https://github.com/ptitSeb/box64.git \
+    && git -C /src/box64 checkout "$BOX64_COMMIT"
 WORKDIR /src/box64/build
 RUN cmake .. -DARM_DYNAREC=ON -DBOX32=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     && make -j$(nproc) \

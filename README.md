@@ -1,7 +1,5 @@
 # corekeeper-dedicatedserver-arm64
 
-본 저장소는 codex (GPT-5.3-codex)를 활용하여 작성하였습니다.
-
 ARM64 환경에서 Core Keeper Dedicated Server를 실행하기 위한 Docker 구성입니다.  
 이 저장소는 Box64 위에서 SteamCMD를 구동해 서버 파일을 내려받고, 별도 런타임 이미지로 Core Keeper 전용 서버를 실행하는 흐름을 제공합니다.
 
@@ -44,6 +42,10 @@ Core Keeper 전용 서버는 x86_64 기준 배포물이 중심이라 ARM64 환�
 - 서버 파일과 SDK를 보관할 영속 볼륨 또는 호스트 디렉터리
 
 ## 이미지 빌드
+
+기본 Box64 커밋은 현재 Core Keeper와 Palworld 기동을 확인한 `24065fffb`로
+고정되어 있습니다. 다른 버전을 시험할 때만 `BOX64_COMMIT` 빌드 인자로
+명시적으로 변경합니다.
 
 ```bash
 docker build -f base/Dockerfile -t epko-base:latest base
@@ -89,10 +91,22 @@ docker run -d -it \
 `run-shell`은 위 과정을 한 번에 재현하기 위한 개인용 예시 스크립트입니다.  
 호스트 경로가 하드코딩되어 있으므로 그대로 쓰기보다는 환경에 맞게 수정해서 사용하는 편이 안전합니다.
 
-## 모니터링
+## 공통 watchdog 연동
 
-`watchcore-python` 저장소를 함께 사용하면 Core Keeper 서버 상태를 간단하게 모니터링할 수 있습니다.  
-운영 환경에서는 서버 프로세스 감시와 로그 기반 상태 알림을 별도 저장소로 분리하는 방식이 관리하기 편합니다.
+형제 저장소인 `watchdog`의 Core Keeper 어댑터를 사용하면
+메모리 감시, Discord 상태 알림, 자동저장 경계 대기, 저장 파일 검증·백업 후
+안전 재기동을 적용할 수 있습니다.
+
+```text
+container/
+├── corekeeper-dedicatedserver-arm64/
+└── watchdog/
+```
+
+watchdog 컨테이너는 `WATCHDOG_ADAPTER=corekeeper`로 실행하며 기본 메모리 정책은
+주의 6GiB, 자동 재기동 7GiB, 긴급 재기동 7.5GiB, 컨테이너 한도 8GiB입니다.
+Discord Webhook이 비어 있으면 같은 상태와 이벤트를 컨테이너 로그에만
+기록합니다.
 
 ## 참고 사항
 
