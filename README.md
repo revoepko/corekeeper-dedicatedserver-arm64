@@ -91,23 +91,6 @@ docker run -d -it \
 `run-shell`은 위 과정을 한 번에 재현하기 위한 개인용 예시 스크립트입니다.  
 호스트 경로가 하드코딩되어 있으므로 그대로 쓰기보다는 환경에 맞게 수정해서 사용하는 편이 안전합니다.
 
-## 공통 watchdog 연동
-
-형제 저장소인 `watchdog`의 Core Keeper 어댑터를 사용하면
-메모리 감시, Discord 상태 알림, 자동저장 경계 대기, 저장 파일 검증·백업 후
-안전 재기동을 적용할 수 있습니다.
-
-```text
-container/
-├── corekeeper-dedicatedserver-arm64/
-└── watchdog/
-```
-
-watchdog 컨테이너는 `WATCHDOG_ADAPTER=corekeeper`로 실행하며 기본 메모리 정책은
-주의 6GiB, 자동 재기동 7GiB, 긴급 재기동 7.5GiB, 컨테이너 한도 8GiB입니다.
-Discord Webhook이 비어 있으면 같은 상태와 이벤트를 컨테이너 로그에만
-기록합니다.
-
 ## 참고 사항
 
 - 컨테이너 내부 SteamCMD 설치 경로는 `/home/steam/steamcmd`를 유지합니다.
